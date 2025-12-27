@@ -1,0 +1,21 @@
+2025-12-26 22:50:04.960 | CRITICAL | Logger | Main thread exception
+Traceback (most recent call last):
+
+  File "F:\大学本科\人工智能学习\变现_AI量化交易\我的第一个策略\run.py", line 50, in <module>
+    main()
+    └ <function main at 0x000001974B6A3F60>
+
+  File "F:\大学本科\人工智能学习\变现_AI量化交易\我的第一个策略\run.py", line 46, in main
+    qapp.exec()
+    │    └ <staticmethod(<built-in method exec of Shiboken.ObjectType object at 0x0000019749D203F0>)>
+    └ <PySide6.QtWidgets.QApplication(0x1977df8fe40) at 0x0000019715F7B580>
+
+> File "D:\Anaconda\envs\veighna\Lib\site-packages\vnpy\trader\ui\mainwindow.py", line 250, in closeEvent
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+                   │     │      │     └ <class 'PySide6.QtGui.QCloseEvent'>
+                   │     │      └ <module 'PySide6.QtGui' from 'D:\\Anaconda\\envs\\veighna\\Lib\\site-packages\\PySide6\\QtGui.pyd'>
+                   │     └ <unprintable QCloseEvent object>
+                   └ <vnpy.trader.ui.mainwindow.MainWindow(0x19749e68cf0) at 0x000001977F9AAF40>
+
+KeyboardInterrupt
+2025-12-26 23:22:52.602 | INFO | MainEngine | 订阅行情 -> CTP：SubscribeRequest(symbol='00700', exchange=<Exchange.SHFE: 'SHFE'>)
