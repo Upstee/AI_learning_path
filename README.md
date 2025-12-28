@@ -333,8 +333,7 @@ in the Software without restriction...
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/人工智能学习/issues)
 - **讨论**: [GitHub Discussions](https://github.com/yourusername/人工智能学习/discussions)
-- **邮箱**: your-email@example.com
-
+- **邮箱**: upster913@gmail.com
 ---
 
 ## ⭐ Star History
