@@ -71,38 +71,83 @@ def generate_markdown_report(found_folders, base_dir):
         else:
             markdown += f"### {folder_name}\n\n[已删除] 未发现任何 `{folder_name}` 文件夹。\n\n"
     
-    # 添加目录结构概览
-    markdown += "---\n\n## 目录结构概览\n\n"
-    markdown += "以下为 `学习文档` 目录的主要结构：\n\n"
+    # 添加完整目录结构
+    markdown += "---\n\n## 完整目录结构（包含所有叶子节点）\n\n"
+    markdown += "以下为 `学习文档` 目录的完整结构，递归到所有层级：\n\n"
     
-    def get_structure(path, prefix="", max_depth=3, current_depth=0):
-        """获取目录结构"""
-        if current_depth >= max_depth:
-            return ""
+    def get_structure(path, prefix="", exclude_dirs=None):
+        """获取完整的目录结构（递归到所有叶子节点）"""
+        if exclude_dirs is None:
+            exclude_dirs = set(target_folders)  # 排除已删除的目标文件夹
         
         structure = ""
         try:
             items = sorted(os.listdir(path))
-            dirs = [item for item in items if os.path.isdir(os.path.join(path, item)) and not item.startswith('.')]
+            dirs = []
+            files = []
             
-            for i, item in enumerate(dirs):
-                is_last = (i == len(dirs) - 1)
-                current_prefix = "└── " if is_last else "├── "
-                structure += f"{prefix}{current_prefix}{item}\n"
-                
+            for item in items:
                 item_path = os.path.join(path, item)
-                next_prefix = prefix + ("    " if is_last else "│   ")
-                structure += get_structure(item_path, next_prefix, max_depth, current_depth + 1)
-        except PermissionError:
-            pass
+                if os.path.isdir(item_path):
+                    if not item.startswith('.') and item not in exclude_dirs:
+                        dirs.append(item)
+                elif os.path.isfile(item_path):
+                    if not item.startswith('.'):
+                        files.append(item)
+            
+            # 先显示文件
+            all_items = files + dirs
+            for i, item in enumerate(all_items):
+                is_last = (i == len(all_items) - 1)
+                current_prefix = "└── " if is_last else "├── "
+                item_path = os.path.join(path, item)
+                
+                # 判断是文件还是目录
+                if os.path.isfile(item_path):
+                    structure += f"{prefix}{current_prefix}{item} (文件)\n"
+                else:
+                    structure += f"{prefix}{current_prefix}{item}/\n"
+                    
+                    # 递归处理子目录
+                    next_prefix = prefix + ("    " if is_last else "│   ")
+                    structure += get_structure(item_path, next_prefix, exclude_dirs)
+        except (PermissionError, OSError) as e:
+            structure += f"{prefix}    [无法访问: {str(e)}]\n"
         
         return structure
     
     structure = get_structure(base_dir)
     markdown += "```\n"
-    markdown += base_dir + "\n"
+    markdown += base_dir + "/\n"
     markdown += structure
     markdown += "```\n"
+    
+    # 添加统计信息
+    def count_items(path, exclude_dirs=None):
+        """统计目录和文件数量"""
+        if exclude_dirs is None:
+            exclude_dirs = set(target_folders)
+        
+        dir_count = 0
+        file_count = 0
+        
+        try:
+            for root, dirs, files in os.walk(path):
+                # 过滤排除的目录
+                dirs[:] = [d for d in dirs if d not in exclude_dirs and not d.startswith('.')]
+                files = [f for f in files if not f.startswith('.')]
+                
+                dir_count += len(dirs)
+                file_count += len(files)
+        except (PermissionError, OSError):
+            pass
+        
+        return dir_count, file_count
+    
+    dir_count, file_count = count_items(base_dir)
+    markdown += f"\n**统计信息**:\n"
+    markdown += f"- 目录总数: {dir_count}\n"
+    markdown += f"- 文件总数: {file_count}\n"
     
     return markdown
 
